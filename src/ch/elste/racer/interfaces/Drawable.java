@@ -1,6 +1,7 @@
 package ch.elste.racer.interfaces;
 
 import java.awt.Graphics2D;
+import java.awt.image.ImageObserver;
 
 /**
  * Jedes Drawable Objekt ist von einem Graphics2D Objekt zeichenbar.
@@ -23,4 +24,14 @@ public interface Drawable {
 	public default void render(Graphics2D g2d) {
 		draw(g2d);
 	}
+
+	/**
+	 * Verhält sich wie {@link #draw(Graphics2D)}.
+	 * 
+	 * @param g2d
+	 *            das Graphics2D Objekt
+	 * @param observer
+	 *            der ImageObserver
+	 */
+	void draw(Graphics2D g2d, ImageObserver observer);
 }

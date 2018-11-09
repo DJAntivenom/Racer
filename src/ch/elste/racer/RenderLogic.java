@@ -11,13 +11,21 @@ public class RenderLogic implements Runnable {
 	private JFrame window;
 	private JPanel gameScreen;
 	
-	public RenderLogic() {
+	private Player player;
+	
+	public RenderLogic() throws InterruptedException {
 		gameScreen = new JPanel();
-		
 		
 		window = new JFrame("Racer");
 		window.setSize(WIDTH, HEIGHT);
 		window.setContentPane(gameScreen);
+		window.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		window.setLocationRelativeTo(null);
+		window.setVisible(true);
+		
+		player = new Player();
+		player.setX(gameScreen.getWidth() / 2);
+		player.setY(gameScreen.getHeight() - player.getHeight()*2);
 	}
 
 	@Override
@@ -28,7 +36,7 @@ public class RenderLogic implements Runnable {
 	}
 	
 	private void draw(Graphics2D g2d) {
-		
+		player.draw(g2d, gameScreen);
 	}
 
 }
