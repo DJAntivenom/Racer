@@ -52,7 +52,7 @@ public class RenderLogic implements Runnable {
 		}
 
 		frameEndTime = System.nanoTime();
-		deltaTime = (frameEndTime - frameStartTime) / Math.pow(10, 9);
+		deltaTime = (frameEndTime - frameStartTime) / Math.pow(10, 6);
 
 		frameStartTime = frameEndTime;
 
@@ -70,6 +70,6 @@ public class RenderLogic implements Runnable {
 
 	
 	public static double getFPS() {
-		return 1d / deltaTime;
+		return 1000d / deltaTime;
 	}
 }
