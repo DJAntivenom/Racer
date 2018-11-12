@@ -14,7 +14,8 @@ public class RenderLogic implements Runnable {
 	private Player player;
 
 	private static long frameStartTime, frameEndTime;
-	private static int deltaTime;
+	private static double deltaTime;
+	private static int frameCounter;
 
 	public RenderLogic() throws InterruptedException {
 		gameScreen = new JPanel();
@@ -42,14 +43,20 @@ public class RenderLogic implements Runnable {
 
 	private void draw(Graphics2D g2d) {
 		frameStartTime = System.nanoTime();
-		player.draw((Graphics2D) gameScreen.getGraphics(), gameScreen);
-		
 		gameScreen.repaint();
+		player.draw((Graphics2D) gameScreen.getGraphics(), gameScreen);
+
+		if (frameCounter == 10) {
+			g2d.drawString(String.format("FPS: %4f", RenderLogic.getFPS()), 10, 20);
+			frameCounter = 0;
+		}
 
 		frameEndTime = System.nanoTime();
-		deltaTime = (int) ((frameEndTime - frameStartTime) / Math.pow(10, 6));
-		
+		deltaTime = (frameEndTime - frameStartTime) / Math.pow(10, 9);
+
 		frameStartTime = frameEndTime;
+
+		frameCounter++;
 	}
 
 	/**
@@ -57,7 +64,12 @@ public class RenderLogic implements Runnable {
 	 * 
 	 * @return die Zeit für die Berechnung des letzten Frames in Millisekunden.
 	 */
-	public static int getDeltaTime() {
+	public static double getDeltaTime() {
 		return deltaTime;
+	}
+
+	
+	public static double getFPS() {
+		return 1d / deltaTime;
 	}
 }
