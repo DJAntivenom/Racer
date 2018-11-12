@@ -29,6 +29,8 @@ public class RenderLogic implements Runnable {
 		player = new Player();
 		player.setX(gameScreen.getWidth() / 2);
 		player.setY(gameScreen.getHeight() - player.getHeight() * 2);
+
+		window.addKeyListener(player.getKeyHandlder());
 	}
 
 	@Override
@@ -40,10 +42,14 @@ public class RenderLogic implements Runnable {
 
 	private void draw(Graphics2D g2d) {
 		frameStartTime = System.nanoTime();
-		player.draw(g2d, gameScreen);
+		player.draw((Graphics2D) gameScreen.getGraphics(), gameScreen);
+		
+		gameScreen.repaint();
 
 		frameEndTime = System.nanoTime();
-		deltaTime = (int) (frameStartTime - frameEndTime * Math.pow(10, 6));
+		deltaTime = (int) ((frameEndTime - frameStartTime) / Math.pow(10, 6));
+		
+		frameStartTime = frameEndTime;
 	}
 
 	/**

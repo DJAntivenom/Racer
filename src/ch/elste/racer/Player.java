@@ -12,12 +12,18 @@ import javax.swing.ImageIcon;
 import ch.elste.racer.interfaces.Drawable;
 
 public class Player implements Drawable {
+	public static final int RIGHT = 1;
+	public static final int LEFT = 2;
+	public static final int STATIONARY = 0;
+
 	private Image sprite;
 	private double x, y;
 	private double dx;
 	private double speed;
+	private int direction;
 	private Dimension spriteSize, size;
 	private ImageObserver observer;
+	private KeyHandler keyHandler;
 
 	/*
 	 * Kreiert einen neuen Player.
@@ -33,9 +39,11 @@ public class Player implements Drawable {
 		spriteSize = new Dimension(0, 0);
 		size = new Dimension(20, 20);
 
-		speed = 60;
+		speed = 1;
 
 		loadImage();
+
+		keyHandler = new KeyHandler();
 	}
 
 	/**
@@ -56,33 +64,54 @@ public class Player implements Drawable {
 
 	@Override
 	public void draw(Graphics2D g2d, ImageObserver observer) {
+		move();
+		
 		g2d.drawImage(sprite, (int) Math.round(x - size.width / 2), (int) Math.round(y - size.height / 2), size.width,
 				size.height, observer);
 	}
 
 	@Override
 	public void draw(Graphics2D g2d) {
-		move();
 		draw(g2d, observer);
 	}
 
 	public void move() {
+		if (direction == RIGHT)
+			dx = speed;
+		else if (direction == LEFT)
+			dx = -speed;
+		else if (direction == STATIONARY)
+			dx = 0;
+
 		if (dx > 5)
 			dx = 5;
-		if (x < RenderLogic.WIDTH)
-			x += dx;
-		else
+
+		if (x > RenderLogic.WIDTH)
 			x = 0;
+		else if(x < 0)
+			x = RenderLogic.WIDTH;
+		else
+			x += dx * RenderLogic.getDeltaTime();
 	}
 
 	public class KeyHandler extends KeyAdapter {
 		@Override
 		public void keyPressed(KeyEvent e) {
 			if (e.getKeyCode() == KeyEvent.VK_D)
-				dx += speed * RenderLogic.getDeltaTime();
-			else if(e.getKeyCode() == KeyEvent.VK_A)
-				dx -= speed * RenderLogic.getDeltaTime();
+				direction = RIGHT;
+			else if (e.getKeyCode() == KeyEvent.VK_A)
+				direction = LEFT;
 		}
+
+		@Override
+		public void keyReleased(KeyEvent e) {
+			if (e.getKeyCode() == KeyEvent.VK_D || e.getKeyCode() == KeyEvent.VK_A)
+				direction = STATIONARY;
+		}
+	}
+
+	public KeyHandler getKeyHandlder() {
+		return keyHandler;
 	}
 
 	public double getX() {
