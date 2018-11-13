@@ -1,7 +1,7 @@
 package ch.elste.racer;
 
 import java.awt.Dimension;
-import java.awt.Graphics2D;
+import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -56,10 +56,17 @@ public class Player implements Drawable {
 		SwingWorker<Void, Void> loadingWorker = new SwingWorker<Void, Void>(){
 			@Override
 			protected Void doInBackground() throws Exception {
+				RenderLogic.renderable = false;
 				sprite = new ImageIcon(getClass().getResource("data/Player.png")).getImage();
 				
 				spriteSize.setSize(sprite.getWidth(observer), sprite.getHeight(observer));
 				return null;
+			}
+			
+			@Override
+			protected void done() {
+				super.done();
+				RenderLogic.renderable = true;
 			}
 		};
 		
@@ -67,16 +74,16 @@ public class Player implements Drawable {
 	}
 
 	@Override
-	public void draw(Graphics2D g2d, ImageObserver observer) {
+	public void draw(Graphics g, ImageObserver observer) {
 		move();
 		
-		g2d.drawImage(sprite, (int) Math.round(x - size.width / 2), (int) Math.round(y - size.height / 2), size.width,
+		g.drawImage(sprite, (int) Math.round(x - size.width / 2), (int) Math.round(y - size.height / 2), size.width,
 				size.height, observer);
 	}
 
 	@Override
-	public void draw(Graphics2D g2d) {
-		draw(g2d, observer);
+	public void draw(Graphics g) {
+		draw(g, observer);
 	}
 
 	public void move() {
@@ -111,7 +118,7 @@ public class Player implements Drawable {
 
 		@Override
 		public void keyReleased(KeyEvent e) {
-			if (e.getKeyCode() == KeyEvent.VK_D || e.getKeyCode() == KeyEvent.VK_A)
+			if ((e.getKeyCode() == KeyEvent.VK_D && direction == RIGHT) || (e.getKeyCode() == KeyEvent.VK_A && direction == LEFT))
 				direction = STATIONARY;
 		}
 	}

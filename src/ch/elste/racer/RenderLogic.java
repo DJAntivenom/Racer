@@ -5,8 +5,12 @@ import java.awt.Graphics2D;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.SwingWorker;
 
 public class RenderLogic extends JPanel implements Runnable {
+	public static final int SUCCESS_CODE = 0x0000;
+	public volatile static boolean renderable;
+
 	/**
 	 * 
 	 */
@@ -45,26 +49,53 @@ public class RenderLogic extends JPanel implements Runnable {
 		window.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		window.setLocationRelativeTo(null);
 		window.setVisible(true);
+		window.setResizable(false);
 
 		player.setX(gameScreen.getWidth() / 2);
 		player.setY(gameScreen.getHeight() - player.getHeight() * 2);
 
 		window.addKeyListener(player.getKeyHandlder());
+
+		SwingWorker<Void, Void> renderThread = new SwingWorker<Void, Void>() {
+
+			@Override
+			protected Void doInBackground() throws Exception {
+				while (window.isVisible()) {
+					if (renderable)
+						RenderLogic.render();
+				}
+				return null;
+			}
+
+			@Override
+			protected void done() {
+				super.done();
+
+				if (window.isVisible())
+					window.dispose();
+				System.exit(SUCCESS_CODE);
+			}
+		};
+
+		renderThread.execute();
+	}
+
+	public static void render() {
+		frameStartTime = System.nanoTime();
+
+		gameScreen.paintComponent(gameScreen.getGraphics());
+
+		frameEndTime = System.nanoTime();
+		deltaTime = (frameEndTime - frameStartTime) / Math.pow(10, 6);
 	}
 
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
 
-		frameStartTime = System.nanoTime();
-
-		player.draw((Graphics2D) g);
+		player.draw(g);
 
 		g.drawString(String.format("FPS: %3.1f", RenderLogic.getFPS()), 10, 20);
-
-		frameEndTime = System.nanoTime();
-
-		deltaTime = (frameEndTime - frameStartTime) / Math.pow(10, 6);
 	}
 
 	/**
