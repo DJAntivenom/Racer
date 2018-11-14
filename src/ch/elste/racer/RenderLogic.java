@@ -9,6 +9,7 @@ import javax.swing.SwingWorker;
 
 public class RenderLogic extends JPanel implements Runnable {
 	public static final int SUCCESS_CODE = 0x0000;
+	public static final int OBSTACLE_SPEED = 5;
 	public volatile static boolean renderable;
 
 	/**
@@ -22,13 +23,15 @@ public class RenderLogic extends JPanel implements Runnable {
 	private static RenderLogic gameScreen;
 
 	private Player player;
+	private Obstacle obstacleTest;
 
 	private static long frameStartTime, frameEndTime;
 	private static double deltaTime;
-	private static int frameCounter;
+	private static long frameCounter;
 
 	private RenderLogic() throws InterruptedException {
 		player = new Player();
+		obstacleTest = new Obstacle();
 	}
 
 	public static RenderLogic instance() {
@@ -87,6 +90,8 @@ public class RenderLogic extends JPanel implements Runnable {
 
 		frameEndTime = System.nanoTime();
 		deltaTime = (frameEndTime - frameStartTime) / Math.pow(10, 6);
+		
+		frameCounter++;
 	}
 
 	@Override
@@ -94,7 +99,8 @@ public class RenderLogic extends JPanel implements Runnable {
 		super.paintComponent(g);
 
 		player.draw(g);
-
+		obstacleTest.draw(g);
+		
 		g.drawString(String.format("FPS: %3.1f", RenderLogic.getFPS()), 10, 20);
 	}
 
@@ -114,5 +120,13 @@ public class RenderLogic extends JPanel implements Runnable {
 	 */
 	public static double getFPS() {
 		return 1000d / (deltaTime);
+	}
+	
+	/**
+	 * Gibt die Anzahl an angezeigten Frames zurück.
+	 * @return die Anzahl an angezeigten Frames.
+	 */
+	public static long getFrameCounter() {
+		return frameCounter;
 	}
 }

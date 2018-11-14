@@ -11,8 +11,9 @@ import javax.swing.ImageIcon;
 import javax.swing.SwingWorker;
 
 import ch.elste.racer.interfaces.Drawable;
+import ch.elste.racer.interfaces.Movable;
 
-public class Player implements Drawable {
+public class Player implements Drawable, Movable {
 	public static final int RIGHT = 1;
 	public static final int LEFT = 2;
 	public static final int STATIONARY = 0;
@@ -23,20 +24,12 @@ public class Player implements Drawable {
 	private double speed;
 	private int direction;
 	private Dimension spriteSize, size;
-	private ImageObserver observer;
 	private KeyHandler keyHandler;
 
 	/*
 	 * Kreiert einen neuen Player.
 	 */
 	public Player() throws InterruptedException {
-		observer = new ImageObserver() {
-			@Override
-			public boolean imageUpdate(Image img, int infoflags, int x, int y, int width, int height) {
-				return false;
-			}
-		};
-
 		spriteSize = new Dimension(0, 0);
 		size = new Dimension(20, 20);
 
@@ -59,7 +52,7 @@ public class Player implements Drawable {
 				RenderLogic.renderable = false;
 				sprite = new ImageIcon(getClass().getResource("data/Player.png")).getImage();
 				
-				spriteSize.setSize(sprite.getWidth(observer), sprite.getHeight(observer));
+				spriteSize.setSize(sprite.getWidth(RenderLogic.instance()), sprite.getHeight(RenderLogic.instance()));
 				return null;
 			}
 			
@@ -77,15 +70,16 @@ public class Player implements Drawable {
 	public void draw(Graphics g, ImageObserver observer) {
 		move();
 		
-		g.drawImage(sprite, (int) Math.round(x - size.width / 2), (int) Math.round(y - size.height / 2), size.width,
+		g.drawImage(sprite, (int) Math.round(x), (int) Math.round(y), size.width,
 				size.height, observer);
 	}
 
 	@Override
 	public void draw(Graphics g) {
-		draw(g, observer);
+		draw(g, RenderLogic.instance());
 	}
 
+	@Override
 	public void move() {
 		if (direction == RIGHT)
 			dx = speed;
