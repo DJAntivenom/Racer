@@ -19,13 +19,6 @@ public interface Drawable {
 	public abstract void draw(Graphics g);
 
 	/**
-	 * @see #draw(Graphics)
-	 */
-	public default void render(Graphics g) {
-		draw(g);
-	}
-
-	/**
 	 * Verhält sich wie {@link #draw(Graphics)}.
 	 * 
 	 * @param g

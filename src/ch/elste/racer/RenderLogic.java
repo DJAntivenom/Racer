@@ -1,7 +1,8 @@
 package ch.elste.racer;
 
+import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -9,7 +10,7 @@ import javax.swing.SwingWorker;
 
 public class RenderLogic extends JPanel implements Runnable {
 	public static final int SUCCESS_CODE = 0x0000;
-	public static final int OBSTACLE_SPEED = 5;
+	public static final double OBSTACLE_SPEED = .25;
 	public volatile static boolean renderable;
 
 	/**
@@ -18,20 +19,32 @@ public class RenderLogic extends JPanel implements Runnable {
 	private static final long serialVersionUID = -6195642600853724715L;
 
 	public static final int WIDTH = 800, HEIGHT = 800;
+	public static final int DISTANCE = 140;
 
 	private JFrame window;
+	private BufferedImage frame;
 	private static RenderLogic gameScreen;
 
-	private Player player;
-	private Obstacle obstacleTest;
+	private static Player player1, player2;
+
+	private static Obstacle[] obstacles;
 
 	private static long frameStartTime, frameEndTime;
 	private static double deltaTime;
 	private static long frameCounter;
 
 	private RenderLogic() throws InterruptedException {
-		player = new Player();
-		obstacleTest = new Obstacle();
+		player1 = new Player(Player.KeySet.WASD, "data/player.png");
+		player2 = new Player(Player.KeySet.ARROWS, "data/player2.png");
+		obstacles = new Obstacle[30];
+		for (int i = 0; i < obstacles.length; i++) {
+			obstacles[i] = new Obstacle(Math.random() * WIDTH, -i * DISTANCE);
+			if (obstacles[i].getX() + obstacles[i].getWidth() / 2 > WIDTH) {
+				obstacles[i].setX(WIDTH - obstacles[i].getX() / 2);
+			}
+		}
+
+		frame = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
 	}
 
 	public static RenderLogic instance() {
@@ -47,17 +60,22 @@ public class RenderLogic extends JPanel implements Runnable {
 	@Override
 	public void run() {
 		window = new JFrame("Racer");
-		window.setSize(WIDTH, HEIGHT);
+		gameScreen.setPreferredSize(new Dimension(WIDTH, HEIGHT));
 		window.setContentPane(gameScreen);
 		window.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		window.setLocationRelativeTo(null);
 		window.setVisible(true);
 		window.setResizable(false);
+		window.pack();
+		window.setLocationRelativeTo(null);
 
-		player.setX(gameScreen.getWidth() / 2);
-		player.setY(gameScreen.getHeight() - player.getHeight() * 2);
+		player1.setX(WIDTH * 1 / 3);
+		player1.setY(HEIGHT - player1.getHeight() * 2);
 
-		window.addKeyListener(player.getKeyHandlder());
+		player2.setX(WIDTH * 2 / 3);
+		player2.setY(HEIGHT - player2.getHeight() * 2);
+
+		window.addKeyListener(player1.getKeyHandlder());
+		window.addKeyListener(player2.getKeyHandlder());
 
 		SwingWorker<Void, Void> renderThread = new SwingWorker<Void, Void>() {
 
@@ -90,18 +108,23 @@ public class RenderLogic extends JPanel implements Runnable {
 
 		frameEndTime = System.nanoTime();
 		deltaTime = (frameEndTime - frameStartTime) / Math.pow(10, 6);
-		
+
 		frameCounter++;
 	}
 
 	@Override
 	protected void paintComponent(Graphics g) {
-		super.paintComponent(g);
+		frame.createGraphics().clearRect(0, 0, WIDTH, HEIGHT);
 
-		player.draw(g);
-		obstacleTest.draw(g);
-		
-		g.drawString(String.format("FPS: %3.1f", RenderLogic.getFPS()), 10, 20);
+		player1.draw(frame.createGraphics());
+		player2.draw(frame.createGraphics());
+
+		for (int i = 0; i < obstacles.length; i++) {
+			obstacles[i].draw(frame.createGraphics());
+		}
+
+		frame.createGraphics().drawString(String.format("FPS: %4.1f", RenderLogic.getFPS()), 10, 20);
+		g.drawImage(frame, 0, 0, this);
 	}
 
 	/**
@@ -121,9 +144,10 @@ public class RenderLogic extends JPanel implements Runnable {
 	public static double getFPS() {
 		return 1000d / (deltaTime);
 	}
-	
+
 	/**
 	 * Gibt die Anzahl an angezeigten Frames zurück.
+	 * 
 	 * @return die Anzahl an angezeigten Frames.
 	 */
 	public static long getFrameCounter() {

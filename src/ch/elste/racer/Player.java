@@ -18,6 +18,7 @@ public class Player implements Drawable, Movable {
 	public static final int LEFT = 2;
 	public static final int STATIONARY = 0;
 
+	private KeySet keySet;
 	private Image sprite;
 	private double x, y;
 	private double dx;
@@ -29,13 +30,14 @@ public class Player implements Drawable, Movable {
 	/*
 	 * Kreiert einen neuen Player.
 	 */
-	public Player() throws InterruptedException {
+	public Player(KeySet keySet, String imageLocation) throws InterruptedException {
+		this.keySet = keySet;
 		spriteSize = new Dimension(0, 0);
 		size = new Dimension(20, 20);
 
 		speed = 1;
 
-		loadImage();
+		loadImage(imageLocation);
 
 		keyHandler = new KeyHandler();
 	}
@@ -45,33 +47,32 @@ public class Player implements Drawable, Movable {
 	 * 
 	 * @throws InterruptedException
 	 */
-	public void loadImage() throws InterruptedException {
-		SwingWorker<Void, Void> loadingWorker = new SwingWorker<Void, Void>(){
+	public void loadImage(String imageLocation) throws InterruptedException {
+		SwingWorker<Void, Void> loadingWorker = new SwingWorker<Void, Void>() {
 			@Override
 			protected Void doInBackground() throws Exception {
 				RenderLogic.renderable = false;
-				sprite = new ImageIcon(getClass().getResource("data/Player.png")).getImage();
-				
+				sprite = new ImageIcon(getClass().getResource(imageLocation)).getImage();
+
 				spriteSize.setSize(sprite.getWidth(RenderLogic.instance()), sprite.getHeight(RenderLogic.instance()));
 				return null;
 			}
-			
+
 			@Override
 			protected void done() {
 				super.done();
 				RenderLogic.renderable = true;
 			}
 		};
-		
+
 		loadingWorker.execute();
 	}
 
 	@Override
 	public void draw(Graphics g, ImageObserver observer) {
 		move();
-		
-		g.drawImage(sprite, (int) Math.round(x), (int) Math.round(y), size.width,
-				size.height, observer);
+
+		g.drawImage(sprite, (int) Math.round(x), (int) Math.round(y), size.width, size.height, observer);
 	}
 
 	@Override
@@ -93,7 +94,7 @@ public class Player implements Drawable, Movable {
 
 		if (x > RenderLogic.WIDTH)
 			x = 0;
-		else if(x < 0)
+		else if (x < 0)
 			x = RenderLogic.WIDTH;
 		else
 			x += dx * RenderLogic.getDeltaTime();
@@ -102,18 +103,39 @@ public class Player implements Drawable, Movable {
 	public class KeyHandler extends KeyAdapter {
 		@Override
 		public void keyPressed(KeyEvent e) {
-			if (e.getKeyCode() == KeyEvent.VK_D)
+			if (e.getKeyCode() == keySet.getRight())
 				direction = RIGHT;
-			else if (e.getKeyCode() == KeyEvent.VK_A)
+			else if (e.getKeyCode() == keySet.getLeft())
 				direction = LEFT;
-			
+
 			RenderLogic.instance().repaint();
 		}
 
 		@Override
 		public void keyReleased(KeyEvent e) {
-			if ((e.getKeyCode() == KeyEvent.VK_D && direction == RIGHT) || (e.getKeyCode() == KeyEvent.VK_A && direction == LEFT))
+			if ((e.getKeyCode() == keySet.getRight() && direction == RIGHT)
+					|| (e.getKeyCode() == keySet.getLeft() && direction == LEFT))
 				direction = STATIONARY;
+		}
+	}
+
+	public enum KeySet {
+		WASD(KeyEvent.VK_A, KeyEvent.VK_D),
+		ARROWS(KeyEvent.VK_LEFT, KeyEvent.VK_RIGHT);
+		
+		KeySet(int left, int right) {
+			this.left = left;
+			this.right = right;
+		}
+
+		private final int left, right;
+		
+		public int getLeft() {
+			return left;
+		}
+		
+		public int getRight() {
+			return right;
 		}
 	}
 
