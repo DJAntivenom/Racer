@@ -32,10 +32,11 @@ public class RenderLogic extends JPanel implements Runnable {
 	private static long frameStartTime, frameEndTime;
 	private static double deltaTime;
 	private static long frameCounter;
+	private static boolean stopped = false;
 
 	private RenderLogic() throws InterruptedException {
-		player1 = new Player(Player.KeySet.WASD, "data/player.png");
-		player2 = new Player(Player.KeySet.ARROWS, "data/player2.png");
+		player1 = new Player(Player.KeySet.WASD, "data/Player.png");
+		player2 = new Player(Player.KeySet.ARROWS, "data/Player2.png");
 		obstacles = new Obstacle[30];
 		for (int i = 0; i < obstacles.length; i++) {
 			obstacles[i] = new Obstacle(Math.random() * WIDTH, -i * DISTANCE);
@@ -55,6 +56,11 @@ public class RenderLogic extends JPanel implements Runnable {
 				e.printStackTrace();
 			}
 		return gameScreen;
+	}
+	
+	public static void endGame(Player loser) {
+		System.out.println("End game");
+		stopped = true;
 	}
 
 	@Override
@@ -81,10 +87,11 @@ public class RenderLogic extends JPanel implements Runnable {
 
 			@Override
 			protected Void doInBackground() throws Exception {
-				while (window.isVisible()) {
+				while (!hasStopped()) {
 					if (renderable)
 						RenderLogic.render();
 				}
+				System.out.println("jetzt stoppts");
 				return null;
 			}
 
@@ -101,19 +108,22 @@ public class RenderLogic extends JPanel implements Runnable {
 		renderThread.execute();
 	}
 
+	public static boolean hasStopped() {
+		return stopped;
+	}
+	
 	public static void render() {
 		frameStartTime = System.nanoTime();
 
-		gameScreen.paintComponent(gameScreen.getGraphics());
+		gameScreen.render(gameScreen.getGraphics());
 
 		frameEndTime = System.nanoTime();
 		deltaTime = (frameEndTime - frameStartTime) / Math.pow(10, 6);
 
 		frameCounter++;
 	}
-
-	@Override
-	protected void paintComponent(Graphics g) {
+	
+	private void render(Graphics g) {
 		frame.createGraphics().clearRect(0, 0, WIDTH, HEIGHT);
 
 		player1.draw(frame.createGraphics());

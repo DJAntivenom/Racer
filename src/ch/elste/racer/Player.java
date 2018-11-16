@@ -1,6 +1,5 @@
 package ch.elste.racer;
 
-import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.event.KeyAdapter;
@@ -12,19 +11,26 @@ import javax.swing.SwingWorker;
 
 import ch.elste.racer.interfaces.Drawable;
 import ch.elste.racer.interfaces.Movable;
+import ch.elste.racer.util.Vector2D;
 
 public class Player implements Drawable, Movable {
-	public static final int RIGHT = 1;
-	public static final int LEFT = 2;
-	public static final int STATIONARY = 0;
+	public static final Vector2D RIGHT_DOWN = new Vector2D(Math.sqrt(2), (float) (Math.PI * 7 / 4));
+	public static final Vector2D RIGHT_UP = new Vector2D(Math.sqrt(2), (float) (Math.PI / 4));
+	public static final Vector2D LEFT_DOWN = new Vector2D(Math.sqrt(2), (float) (Math.PI * 5 / 4));
+	public static final Vector2D LEFT_UP = new Vector2D(Math.sqrt(2), (float) (Math.PI * 7 / 4));
+	public static final Vector2D RIGHT = new Vector2D(1d, 0d);
+	public static final Vector2D LEFT = new Vector2D(-1d, 0d);
+	public static final Vector2D UP = new Vector2D(0d, 1d);
+	public static final Vector2D DOWN = new Vector2D(0d, 1d);
+	public static final Vector2D STATIONARY_X = new Vector2D(0d, 0d);
+	public static final Vector2D STATIONARY_Y = new Vector2D(0d, 0d);
 
+	private Vector2D velocity;
 	private KeySet keySet;
 	private Image sprite;
-	private double x, y;
-	private double dx;
-	private double speed;
-	private int direction;
-	private Dimension spriteSize, size;
+	private Vector2D position;
+	private Vector2D direction;
+	private Vector2D spriteSize, size;
 	private KeyHandler keyHandler;
 
 	/*
@@ -32,14 +38,15 @@ public class Player implements Drawable, Movable {
 	 */
 	public Player(KeySet keySet, String imageLocation) throws InterruptedException {
 		this.keySet = keySet;
-		spriteSize = new Dimension(0, 0);
-		size = new Dimension(20, 20);
-
-		speed = 1;
+		spriteSize = new Vector2D(0d, 0d);
+		size = new Vector2D(40d, 40d);
 
 		loadImage(imageLocation);
 
 		keyHandler = new KeyHandler();
+
+		velocity = new Vector2D(0d, 0d);
+		position = new Vector2D(0d, 0d);
 	}
 
 	/**
@@ -54,7 +61,8 @@ public class Player implements Drawable, Movable {
 				RenderLogic.renderable = false;
 				sprite = new ImageIcon(getClass().getResource(imageLocation)).getImage();
 
-				spriteSize.setSize(sprite.getWidth(RenderLogic.instance()), sprite.getHeight(RenderLogic.instance()));
+				spriteSize.setX(sprite.getWidth(RenderLogic.instance()));
+				spriteSize.setY(sprite.getHeight(RenderLogic.instance()));
 				return null;
 			}
 
@@ -72,7 +80,8 @@ public class Player implements Drawable, Movable {
 	public void draw(Graphics g, ImageObserver observer) {
 		move();
 
-		g.drawImage(sprite, (int) Math.round(x), (int) Math.round(y), size.width, size.height, observer);
+		g.drawImage(sprite, (int) Math.round(position.x), (int) Math.round(position.y), (int) Math.round(size.x),
+				(int) Math.round(size.y), observer);
 	}
 
 	@Override
@@ -82,60 +91,82 @@ public class Player implements Drawable, Movable {
 
 	@Override
 	public void move() {
-		if (direction == RIGHT)
-			dx = speed;
-		else if (direction == LEFT)
-			dx = -speed;
-		else if (direction == STATIONARY)
-			dx = 0;
+		position.add(velocity);
+		
+		if (position.x > RenderLogic.WIDTH)
+			position.x = -size.getX() / 2;
+		else if (position.x < 0)
+			position.x = RenderLogic.WIDTH;
 
-		if (dx > 5)
-			dx = 5;
-
-		if (x > RenderLogic.WIDTH)
-			x = 0;
-		else if (x < 0)
-			x = RenderLogic.WIDTH;
-		else
-			x += dx * RenderLogic.getDeltaTime();
+		if (position.y < size.getY() / 2)
+			position.y = size.getY();
+		else if (position.y > RenderLogic.HEIGHT + size.getY() / 2)
+			RenderLogic.endGame(this);
 	}
 
 	public class KeyHandler extends KeyAdapter {
 		@Override
 		public void keyPressed(KeyEvent e) {
 			if (e.getKeyCode() == keySet.getRight())
-				direction = RIGHT;
+				if (direction == DOWN)
+					direction = RIGHT_DOWN;
+				else if(direction == UP)
+					direction = RIGHT_UP;
+				else
+					direction = RIGHT;
 			else if (e.getKeyCode() == keySet.getLeft())
-				direction = LEFT;
+				if (direction == DOWN)
+					direction = LEFT_DOWN;
+				else if(direction == UP)
+					direction = LEFT_UP;
+				else
+					direction = LEFT;
 
-			RenderLogic.instance().repaint();
+			if (e.getKeyCode() == keySet.getUp())
+				direction = UP;
+			else if (e.getKeyCode() == keySet.getDown())
+				direction = DOWN;
 		}
 
 		@Override
 		public void keyReleased(KeyEvent e) {
 			if ((e.getKeyCode() == keySet.getRight() && direction == RIGHT)
 					|| (e.getKeyCode() == keySet.getLeft() && direction == LEFT))
-				direction = STATIONARY;
+				direction = STATIONARY_X;
+
+			if ((e.getKeyCode() == keySet.getUp() && direction == UP)
+					|| (e.getKeyCode() == keySet.getDown() && direction == DOWN))
+				direction = STATIONARY_Y;
 		}
 	}
 
 	public enum KeySet {
-		WASD(KeyEvent.VK_A, KeyEvent.VK_D),
-		ARROWS(KeyEvent.VK_LEFT, KeyEvent.VK_RIGHT);
-		
-		KeySet(int left, int right) {
+		WASD(KeyEvent.VK_A, KeyEvent.VK_D, KeyEvent.VK_W, KeyEvent.VK_S), ARROWS(KeyEvent.VK_LEFT, KeyEvent.VK_RIGHT,
+				KeyEvent.VK_UP, KeyEvent.VK_DOWN);
+
+		KeySet(int left, int right, int up, int down) {
 			this.left = left;
 			this.right = right;
+			this.up = up;
+			this.down = down;
 		}
 
-		private final int left, right;
-		
+		private final int left, right, up, down;
+
 		public int getLeft() {
 			return left;
 		}
-		
+
 		public int getRight() {
 			return right;
+		}
+
+		public int getUp() {
+			return up;
+		}
+
+		public int getDown() {
+			return down;
 		}
 	}
 
@@ -144,22 +175,22 @@ public class Player implements Drawable, Movable {
 	}
 
 	public double getX() {
-		return x;
+		return position.x;
 	}
 
 	public double getY() {
-		return y;
+		return position.y;
 	}
 
 	public void setX(double x) {
-		this.x = x;
+		position.x = x;
 	}
 
 	public void setY(double y) {
-		this.y = y;
+		position.y = y;
 	}
 
 	public double getHeight() {
-		return size.getHeight();
+		return size.getY();
 	}
 }
