@@ -78,16 +78,16 @@ public class Obstacle extends Actor {
 	}
 
 	@Override
-	public void draw(Graphics g) {
-		draw(g, RenderLogic.instance());
-	}
-
-	@Override
 	public void draw(Graphics g, ImageObserver observer) {
 		move();
 
 		g.fillRect((int) Math.round(position.x - width / 2), (int) Math.round(position.y - height / 2),
 				(int) Math.round(width), (int) Math.round(height));
+	}
+	
+	@Override
+	public void draw(Graphics g) {
+		draw(g, RenderLogic.instance());
 	}
 
 	@Override
@@ -95,15 +95,15 @@ public class Obstacle extends Actor {
 		if (position.y < RenderLogic.HEIGHT + height)
 			position.add(DOWN);
 		else
-			position.y = -startY;
+			position.setY(-RenderLogic.HEIGHT);
 	}
 
 	public void setX(double x) {
-		position.x = x;
+		position.setX(x);
 	}
 
 	public double getX() {
-		return position.x;
+		return position.getX();
 	}
 
 	public double getWidth() {

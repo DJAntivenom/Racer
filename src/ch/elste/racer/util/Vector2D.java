@@ -76,6 +76,9 @@ public class Vector2D {
 	public Vector2D add(final Vector2D v) {
 		this.x += v.x;
 		this.y += v.y;
+
+		this.r = Math.sqrt(x * x + y * y);
+		this.phi = Math.atan(y / x);
 		return this;
 	}
 
@@ -89,6 +92,9 @@ public class Vector2D {
 	public Vector2D scale(final double factor) {
 		x *= factor;
 		y *= factor;
+
+		this.r = Math.sqrt(x * x + y * y);
+		this.phi = Math.atan(y / x);
 		return this;
 	}
 
@@ -110,23 +116,38 @@ public class Vector2D {
 
 	public void setX(double x) {
 		this.x = x;
+
+		this.r = Math.sqrt(x * x + y * y);
+		this.phi = Math.atan(y / x);
 	}
 
 	public void setY(double y) {
 		this.y = y;
+
+		this.r = Math.sqrt(x * x + y * y);
+		this.phi = Math.atan(y / x);
 	}
 
 	public void setR(double r) {
 		this.r = r;
+
+		this.x = Math.cos(phi) * r;
+		this.y = Math.sin(phi) * r;
 	}
 
 	public void setPhi(double phi) {
 		this.phi = phi;
+
+		this.x = Math.cos(phi) * r;
+		this.y = Math.sin(phi) * r;
 	}
 
 	public void set(final Vector2D v) {
 		this.x = v.x;
 		this.y = v.y;
+
+		this.r = Math.sqrt(x * x + y * y);
+		this.phi = Math.atan(y / x);
 	}
 
 	@Override
@@ -142,7 +163,7 @@ public class Vector2D {
 		else
 			return false;
 	}
-	
+
 	private boolean equals(Vector2D v) {
 		return (x == v.x && y == v.y);
 	}

@@ -2,6 +2,8 @@ package ch.elste.racer;
 
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 
 import javax.swing.JFrame;
@@ -14,15 +16,14 @@ import ch.elste.racer.scene.Player;
 public class RenderLogic extends JPanel implements Runnable {
 	public static final int SUCCESS_CODE = 0x0000;
 	public static final double OBSTACLE_SPEED = .25;
+	public static final int OBSTACLE_DISTANCE = 140;
+	public static final int WIDTH = 800, HEIGHT = 800;
 	public volatile static boolean renderable;
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -6195642600853724715L;
-
-	public static final int WIDTH = 800, HEIGHT = 800;
-	public static final int DISTANCE = 140;
 
 	private JFrame window;
 	private BufferedImage frame;
@@ -40,15 +41,18 @@ public class RenderLogic extends JPanel implements Runnable {
 	private RenderLogic() throws InterruptedException {
 		player1 = new Player(Player.KeySet.WASD, "data/Player.png");
 		player2 = new Player(Player.KeySet.ARROWS, "data/Player2.png");
-		obstacles = new Obstacle[30];
+		obstacles = new Obstacle[Math.round((float) HEIGHT / OBSTACLE_DISTANCE) * 2];
 		for (int i = 0; i < obstacles.length; i++) {
-			obstacles[i] = new Obstacle(Math.random() * WIDTH, -i * DISTANCE);
+			obstacles[i] = new Obstacle(Math.random() * WIDTH, -i * OBSTACLE_DISTANCE);
 			if (obstacles[i].getX() + obstacles[i].getWidth() / 2 > WIDTH) {
 				obstacles[i].setX(WIDTH - obstacles[i].getX() / 2);
 			}
 		}
 
 		frame = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
+		
+		System.out.println(obstacles[0].getPosition());
+		System.out.println(obstacles[1].getPosition());
 	}
 
 	public static RenderLogic instance() {
@@ -85,6 +89,16 @@ public class RenderLogic extends JPanel implements Runnable {
 
 		window.addKeyListener(player1.getKeyHandlder());
 		window.addKeyListener(player2.getKeyHandlder());
+
+		window.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				System.out.println(obstacles[0].getPosition());
+				System.out.println(obstacles[1].getPosition());
+				
+				endGame(null);
+			}
+		});
 
 		SwingWorker<Void, Void> renderThread = new SwingWorker<Void, Void>() {
 

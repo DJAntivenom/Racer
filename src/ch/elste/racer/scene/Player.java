@@ -68,7 +68,7 @@ public class Player extends Actor {
 		g.drawImage(sprite, (int) Math.round(position.x), (int) Math.round(position.y), (int) Math.round(size.x),
 				(int) Math.round(size.y), observer);
 	}
-
+	
 	@Override
 	public void draw(Graphics g) {
 		draw(g, RenderLogic.instance());
