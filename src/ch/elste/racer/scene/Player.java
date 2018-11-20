@@ -1,4 +1,4 @@
-package ch.elste.racer;
+package ch.elste.racer.scene;
 
 import java.awt.Graphics;
 import java.awt.Image;
@@ -9,27 +9,12 @@ import java.awt.image.ImageObserver;
 import javax.swing.ImageIcon;
 import javax.swing.SwingWorker;
 
-import ch.elste.racer.interfaces.Drawable;
-import ch.elste.racer.interfaces.Movable;
+import ch.elste.racer.RenderLogic;
 import ch.elste.racer.util.Vector2D;
 
-public class Player implements Drawable, Movable {
-	public static final Vector2D RIGHT_DOWN = new Vector2D(Math.sqrt(2), (float) (Math.PI * 7 / 4));
-	public static final Vector2D RIGHT_UP = new Vector2D(Math.sqrt(2), (float) (Math.PI / 4));
-	public static final Vector2D LEFT_DOWN = new Vector2D(Math.sqrt(2), (float) (Math.PI * 5 / 4));
-	public static final Vector2D LEFT_UP = new Vector2D(Math.sqrt(2), (float) (Math.PI * 7 / 4));
-	public static final Vector2D RIGHT = new Vector2D(1d, 0d);
-	public static final Vector2D LEFT = new Vector2D(-1d, 0d);
-	public static final Vector2D UP = new Vector2D(0d, 1d);
-	public static final Vector2D DOWN = new Vector2D(0d, 1d);
-	public static final Vector2D STATIONARY_X = new Vector2D(0d, 0d);
-	public static final Vector2D STATIONARY_Y = new Vector2D(0d, 0d);
-
-	private Vector2D velocity;
+public class Player extends Actor {
 	private KeySet keySet;
 	private Image sprite;
-	private Vector2D position;
-	private Vector2D direction;
 	private Vector2D spriteSize, size;
 	private KeyHandler keyHandler;
 
@@ -92,9 +77,9 @@ public class Player implements Drawable, Movable {
 	@Override
 	public void move() {
 		position.add(velocity);
-		
+
 		if (position.x > RenderLogic.WIDTH)
-			position.x = -size.getX() / 2;
+			position.x = 0;
 		else if (position.x < 0)
 			position.x = RenderLogic.WIDTH;
 
@@ -108,41 +93,41 @@ public class Player implements Drawable, Movable {
 		@Override
 		public void keyPressed(KeyEvent e) {
 			if (e.getKeyCode() == keySet.getRight())
-				if (direction == DOWN)
-					direction = RIGHT_DOWN;
-				else if(direction == UP)
-					direction = RIGHT_UP;
+				if (velocity.equals(DOWN))
+					velocity.set(RIGHT_DOWN);
+				else if (velocity.equals(UP))
+					velocity.set(RIGHT_UP);
 				else
-					direction = RIGHT;
+					velocity.set(RIGHT);
 			else if (e.getKeyCode() == keySet.getLeft())
-				if (direction == DOWN)
-					direction = LEFT_DOWN;
-				else if(direction == UP)
-					direction = LEFT_UP;
+				if (velocity.equals(DOWN))
+					velocity.set(LEFT_DOWN);
+				else if (velocity.equals(UP))
+					velocity.set(LEFT_UP);
 				else
-					direction = LEFT;
+					velocity.set(LEFT);
 
 			if (e.getKeyCode() == keySet.getUp())
-				direction = UP;
+				velocity.set(UP);
 			else if (e.getKeyCode() == keySet.getDown())
-				direction = DOWN;
+				velocity.set(DOWN);
 		}
 
 		@Override
 		public void keyReleased(KeyEvent e) {
-			if ((e.getKeyCode() == keySet.getRight() && direction == RIGHT)
-					|| (e.getKeyCode() == keySet.getLeft() && direction == LEFT))
-				direction = STATIONARY_X;
+			if ((e.getKeyCode() == keySet.getRight() && velocity.equals(RIGHT))
+					|| (e.getKeyCode() == keySet.getLeft() && velocity.equals(LEFT)))
+				velocity.set(STATIONARY_X);
 
-			if ((e.getKeyCode() == keySet.getUp() && direction == UP)
-					|| (e.getKeyCode() == keySet.getDown() && direction == DOWN))
-				direction = STATIONARY_Y;
+			if ((e.getKeyCode() == keySet.getUp() && velocity.equals(UP))
+					|| (e.getKeyCode() == keySet.getDown() && velocity.equals(DOWN)))
+				velocity.set(STATIONARY_Y);
 		}
 	}
 
 	public enum KeySet {
-		WASD(KeyEvent.VK_A, KeyEvent.VK_D, KeyEvent.VK_W, KeyEvent.VK_S), ARROWS(KeyEvent.VK_LEFT, KeyEvent.VK_RIGHT,
-				KeyEvent.VK_UP, KeyEvent.VK_DOWN);
+		WASD(KeyEvent.VK_A, KeyEvent.VK_D, KeyEvent.VK_W, KeyEvent.VK_S),
+		ARROWS(KeyEvent.VK_LEFT, KeyEvent.VK_RIGHT, KeyEvent.VK_UP, KeyEvent.VK_DOWN);
 
 		KeySet(int left, int right, int up, int down) {
 			this.left = left;

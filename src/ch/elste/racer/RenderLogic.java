@@ -8,6 +8,9 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingWorker;
 
+import ch.elste.racer.scene.Obstacle;
+import ch.elste.racer.scene.Player;
+
 public class RenderLogic extends JPanel implements Runnable {
 	public static final int SUCCESS_CODE = 0x0000;
 	public static final double OBSTACLE_SPEED = .25;

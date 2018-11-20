@@ -1,16 +1,14 @@
-package ch.elste.racer;
+package ch.elste.racer.scene;
 
 import java.awt.Graphics;
 import java.awt.image.ImageObserver;
 
-import ch.elste.racer.interfaces.Drawable;
-import ch.elste.racer.interfaces.Movable;
+import ch.elste.racer.RenderLogic;
+import ch.elste.racer.util.Vector2D;
 
-public class Obstacle implements Drawable, Movable {
-	private double x, y;
+public class Obstacle extends Actor {
 	private final double startY;
 	private double width, height;
-	private double dy;
 
 	/**
 	 * Kreiert ein neues Obstacle Objekt im Punkt <code>(x, y)</code> mit gegebener
@@ -26,8 +24,9 @@ public class Obstacle implements Drawable, Movable {
 	 *            die höhe
 	 */
 	public Obstacle(double x, double y, double width, double height) {
-		this.x = x;
-		this.y = y;
+		position = new Vector2D(x, y);
+		velocity = new Vector2D(0d, 0d);
+		
 		this.startY = y;
 		this.width = width;
 		this.height = height;
@@ -85,34 +84,28 @@ public class Obstacle implements Drawable, Movable {
 
 	@Override
 	public void draw(Graphics g, ImageObserver observer) {
-		// g.drawLine((int) Math.round(x - width / 2), (int) Math.round(y - height / 2),
-		// (int) Math.round(x + width / 2),
-		// (int) Math.round(y - height / 2));
-
-		g.fillRect((int) Math.round(x - width / 2), (int) Math.round(y - height / 2), (int) Math.round(width),
-				(int) Math.round(height));
-		
 		move();
+
+		g.fillRect((int) Math.round(position.x - width / 2), (int) Math.round(position.y - height / 2),
+				(int) Math.round(width), (int) Math.round(height));
 	}
 
 	@Override
 	public void move() {
-		dy = RenderLogic.OBSTACLE_SPEED;
-		
-		if (y < RenderLogic.HEIGHT + height)
-			y += dy * RenderLogic.getDeltaTime();
+		if (position.y < RenderLogic.HEIGHT + height)
+			position.add(DOWN);
 		else
-			y = startY;
+			position.y = -startY;
 	}
-	
+
 	public void setX(double x) {
-		this.x = x;
+		position.x = x;
 	}
-	
+
 	public double getX() {
-		return x;
+		return position.x;
 	}
-	
+
 	public double getWidth() {
 		return width;
 	}
