@@ -55,6 +55,8 @@ public class Player extends Actor {
 			protected void done() {
 				super.done();
 				RenderLogic.renderable = true;
+				RenderLogic.render();
+				RenderLogic.renderable = false;
 			}
 		};
 
@@ -64,28 +66,23 @@ public class Player extends Actor {
 	@Override
 	public void draw(Graphics g, ImageObserver observer) {
 		move();
-
-		g.drawImage(sprite, (int) Math.round(position.x), (int) Math.round(position.y), (int) Math.round(size.x),
-				(int) Math.round(size.y), observer);
-	}
-	
-	@Override
-	public void draw(Graphics g) {
-		draw(g, RenderLogic.instance());
+		g.drawImage(sprite, 400, 400, observer);
+//		g.drawImage(sprite, (int) Math.round(position.getX()), (int) Math.round(position.getY()),
+//				(int) Math.round(size.getX()), (int) Math.round(size.getY()), observer);
 	}
 
 	@Override
 	public void move() {
 		position.add(velocity);
 
-		if (position.x > RenderLogic.WIDTH)
-			position.x = 0;
-		else if (position.x < 0)
-			position.x = RenderLogic.WIDTH;
+		if (position.getX() > RenderLogic.WIDTH)
+			position.setX(0);
+		else if (position.getX() < 0)
+			position.setX(RenderLogic.WIDTH);
 
-		if (position.y < size.getY() / 2)
-			position.y = size.getY();
-		else if (position.y > RenderLogic.HEIGHT + size.getY() / 2)
+		if (position.getY() < size.getY() / 2)
+			position.setY(size.getY());
+		else if (position.getY() > RenderLogic.HEIGHT + size.getY() / 2)
 			RenderLogic.endGame(this);
 	}
 
@@ -160,22 +157,26 @@ public class Player extends Actor {
 	}
 
 	public double getX() {
-		return position.x;
+		return position.getX();
 	}
 
 	public double getY() {
-		return position.y;
+		return position.getY();
 	}
 
 	public void setX(double x) {
-		position.x = x;
+		position.setX(x);
 	}
 
 	public void setY(double y) {
-		position.y = y;
+		position.setY(y);
 	}
 
 	public double getHeight() {
 		return size.getY();
+	}
+	
+	public Image getSprite() {
+		return sprite;
 	}
 }

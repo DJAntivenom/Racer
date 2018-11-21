@@ -3,6 +3,8 @@ package ch.elste.racer.interfaces;
 import java.awt.Graphics;
 import java.awt.image.ImageObserver;
 
+import ch.elste.racer.RenderLogic;
+
 /**
  * Jedes Drawable Objekt ist von einem Graphics Objekt zeichenbar.
  * 
@@ -16,7 +18,9 @@ public interface Drawable {
 	 * @param g
 	 *            das Graphics Objekt.
 	 */
-	public abstract void draw(Graphics g);
+	public default void draw(Graphics g) {
+		draw(g, RenderLogic.instance());
+	}
 
 	/**
 	 * Verhält sich wie {@link #draw(Graphics)}.
@@ -26,5 +30,5 @@ public interface Drawable {
 	 * @param observer
 	 *            der ImageObserver
 	 */
-	void draw(Graphics g, ImageObserver observer);
+	public void draw(Graphics g, ImageObserver observer);
 }

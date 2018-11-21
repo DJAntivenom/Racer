@@ -1,7 +1,7 @@
 package ch.elste.racer.util;
 
 public class Vector2D {
-	public double x, y;
+	private double x, y;
 	private double r, phi;
 
 	/**

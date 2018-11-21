@@ -28,10 +28,6 @@ public class Actor implements Drawable, Movable {
 	}
 
 	@Override
-	public void draw(Graphics g) {
-	}
-
-	@Override
 	public void draw(Graphics g, ImageObserver observer) {
 		draw(g, RenderLogic.instance());
 	}

@@ -41,7 +41,7 @@ public class RenderLogic extends JPanel implements Runnable {
 	private RenderLogic() throws InterruptedException {
 		player1 = new Player(Player.KeySet.WASD, "data/Player.png");
 		player2 = new Player(Player.KeySet.ARROWS, "data/Player2.png");
-		obstacles = new Obstacle[Math.round((float) HEIGHT / OBSTACLE_DISTANCE) * 2];
+		obstacles = new Obstacle[Math.round((float) HEIGHT / OBSTACLE_DISTANCE) * 4];
 		for (int i = 0; i < obstacles.length; i++) {
 			obstacles[i] = new Obstacle(Math.random() * WIDTH, -i * OBSTACLE_DISTANCE);
 			if (obstacles[i].getX() + obstacles[i].getWidth() / 2 > WIDTH) {
@@ -50,9 +50,6 @@ public class RenderLogic extends JPanel implements Runnable {
 		}
 
 		frame = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
-		
-		System.out.println(obstacles[0].getPosition());
-		System.out.println(obstacles[1].getPosition());
 	}
 
 	public static RenderLogic instance() {
@@ -81,8 +78,10 @@ public class RenderLogic extends JPanel implements Runnable {
 		window.pack();
 		window.setLocationRelativeTo(null);
 
-		player1.setX(WIDTH * 1 / 3);
-		player1.setY(HEIGHT - player1.getHeight() * 2);
+		player1.setX(WIDTH / 2);
+		player1.setY(HEIGHT / 2);
+		
+		System.out.println("Player1: \n" + player1.getPosition());
 
 		player2.setX(WIDTH * 2 / 3);
 		player2.setY(HEIGHT - player2.getHeight() * 2);
@@ -93,9 +92,6 @@ public class RenderLogic extends JPanel implements Runnable {
 		window.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
-				System.out.println(obstacles[0].getPosition());
-				System.out.println(obstacles[1].getPosition());
-				
 				endGame(null);
 			}
 		});
@@ -143,8 +139,10 @@ public class RenderLogic extends JPanel implements Runnable {
 	private void render(Graphics g) {
 		frame.createGraphics().clearRect(0, 0, WIDTH, HEIGHT);
 
-		player1.draw(frame.createGraphics());
-		player2.draw(frame.createGraphics());
+//		player1.draw(frame.getGraphics());
+//		player2.draw(frame.getGraphics());
+		
+		frame.createGraphics().drawImage(player1.getSprite(), 400, 400, 20, 20, this);
 
 		for (int i = 0; i < obstacles.length; i++) {
 			obstacles[i].draw(frame.createGraphics());
