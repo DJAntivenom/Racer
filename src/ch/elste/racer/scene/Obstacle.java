@@ -7,7 +7,6 @@ import ch.elste.racer.RenderLogic;
 import ch.elste.racer.util.Vector2D;
 
 public class Obstacle extends Actor {
-	private final double startY;
 	private double width, height;
 
 	/**
@@ -27,7 +26,7 @@ public class Obstacle extends Actor {
 		position = new Vector2D(x, y);
 		velocity = new Vector2D(0d, 0d);
 		
-		this.startY = y;
+		
 		this.width = width;
 		this.height = height;
 	}
