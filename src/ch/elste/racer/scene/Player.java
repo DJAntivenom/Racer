@@ -32,6 +32,8 @@ public class Player extends Actor {
 
 		velocity = new Vector2D(0d, 0d);
 		position = new Vector2D(0d, 0d);
+
+		speed = 500;
 	}
 
 	/**
@@ -55,8 +57,6 @@ public class Player extends Actor {
 			protected void done() {
 				super.done();
 				RenderLogic.renderable = true;
-				RenderLogic.render();
-				RenderLogic.renderable = false;
 			}
 		};
 
@@ -66,14 +66,14 @@ public class Player extends Actor {
 	@Override
 	public void draw(Graphics g, ImageObserver observer) {
 		move();
-		g.drawImage(sprite, 400, 400, observer);
-//		g.drawImage(sprite, (int) Math.round(position.getX()), (int) Math.round(position.getY()),
-//				(int) Math.round(size.getX()), (int) Math.round(size.getY()), observer);
+
+		g.drawImage(sprite, (int) Math.round(position.getX()), (int) Math.round(position.getY()),
+				(int) Math.round(size.getX()), (int) Math.round(size.getY()), observer);
 	}
 
 	@Override
 	public void move() {
-		position.add(velocity);
+		position.add(Vector2D.scale(velocity, RenderLogic.getDeltaTime() * speed / 1000d));
 
 		if (position.getX() > RenderLogic.WIDTH)
 			position.setX(0);
@@ -89,42 +89,60 @@ public class Player extends Actor {
 	public class KeyHandler extends KeyAdapter {
 		@Override
 		public void keyPressed(KeyEvent e) {
-			if (e.getKeyCode() == keySet.getRight())
+			if (e.getKeyCode() == keySet.getRight()) {
 				if (velocity.equals(DOWN))
 					velocity.set(RIGHT_DOWN);
 				else if (velocity.equals(UP))
 					velocity.set(RIGHT_UP);
 				else
 					velocity.set(RIGHT);
-			else if (e.getKeyCode() == keySet.getLeft())
+			} else if (e.getKeyCode() == keySet.getLeft()) {
 				if (velocity.equals(DOWN))
 					velocity.set(LEFT_DOWN);
 				else if (velocity.equals(UP))
 					velocity.set(LEFT_UP);
 				else
 					velocity.set(LEFT);
+			}
 
-			if (e.getKeyCode() == keySet.getUp())
-				velocity.set(UP);
-			else if (e.getKeyCode() == keySet.getDown())
-				velocity.set(DOWN);
+			if (e.getKeyCode() == keySet.getUp()) {
+				if (velocity.equals(LEFT))
+					velocity.set(LEFT_UP);
+				else if (velocity.equals(RIGHT))
+					velocity.set(RIGHT_UP);
+				else
+					velocity.set(UP);
+			} else if (e.getKeyCode() == keySet.getDown()) {
+				if (velocity.equals(LEFT))
+					velocity.set(LEFT_DOWN);
+				else if (velocity.equals(RIGHT))
+					velocity.set(RIGHT_DOWN);
+				else
+					velocity.set(DOWN);
+			}
 		}
 
 		@Override
 		public void keyReleased(KeyEvent e) {
-			if ((e.getKeyCode() == keySet.getRight() && velocity.equals(RIGHT))
-					|| (e.getKeyCode() == keySet.getLeft() && velocity.equals(LEFT)))
-				velocity.set(STATIONARY_X);
+			if ((e.getKeyCode() == keySet.getRight()
+					&& (velocity.equals(RIGHT) || velocity.equals(RIGHT_UP) || velocity.equals(RIGHT_DOWN)))
+					|| (e.getKeyCode() == keySet.getLeft()
+							&& (velocity.equals(LEFT) || velocity.equals(LEFT_UP) || velocity.equals(LEFT_DOWN)))) {
+				velocity.setX(0);
+			}
 
-			if ((e.getKeyCode() == keySet.getUp() && velocity.equals(UP))
-					|| (e.getKeyCode() == keySet.getDown() && velocity.equals(DOWN)))
-				velocity.set(STATIONARY_Y);
+			if ((e.getKeyCode() == keySet.getUp()
+					&& (velocity.equals(UP) || velocity.equals(RIGHT_UP) || velocity.equals(LEFT_UP)))
+					|| (e.getKeyCode() == keySet.getDown()
+							&& (velocity.equals(DOWN) || velocity.equals(RIGHT_DOWN) || velocity.equals(LEFT_DOWN)))) {
+				velocity.setY(0);
+			}
 		}
 	}
 
 	public enum KeySet {
-		WASD(KeyEvent.VK_A, KeyEvent.VK_D, KeyEvent.VK_W, KeyEvent.VK_S),
-		ARROWS(KeyEvent.VK_LEFT, KeyEvent.VK_RIGHT, KeyEvent.VK_UP, KeyEvent.VK_DOWN);
+		WASD(KeyEvent.VK_A, KeyEvent.VK_D, KeyEvent.VK_W, KeyEvent.VK_S), ARROWS(KeyEvent.VK_LEFT, KeyEvent.VK_RIGHT,
+				KeyEvent.VK_UP, KeyEvent.VK_DOWN);
 
 		KeySet(int left, int right, int up, int down) {
 			this.left = left;
@@ -175,7 +193,7 @@ public class Player extends Actor {
 	public double getHeight() {
 		return size.getY();
 	}
-	
+
 	public Image getSprite() {
 		return sprite;
 	}

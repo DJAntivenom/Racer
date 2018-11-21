@@ -7,6 +7,7 @@ import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingWorker;
 
@@ -15,7 +16,7 @@ import ch.elste.racer.scene.Player;
 
 public class RenderLogic extends JPanel implements Runnable {
 	public static final int SUCCESS_CODE = 0x0000;
-	public static final double OBSTACLE_SPEED = .25;
+	public static final double OBSTACLE_SPEED = 250;
 	public static final int OBSTACLE_DISTANCE = 140;
 	public static final int WIDTH = 800, HEIGHT = 800;
 	public volatile static boolean renderable;
@@ -39,8 +40,8 @@ public class RenderLogic extends JPanel implements Runnable {
 	private static boolean stopped = false;
 
 	private RenderLogic() throws InterruptedException {
-		player1 = new Player(Player.KeySet.WASD, "data/Player.png");
-		player2 = new Player(Player.KeySet.ARROWS, "data/Player2.png");
+		player1 = new Player(Player.KeySet.WASD, "../data/Player.png");
+		player2 = new Player(Player.KeySet.ARROWS, "../data/Player2.png");
 		obstacles = new Obstacle[Math.round((float) HEIGHT / OBSTACLE_DISTANCE) * 4];
 		for (int i = 0; i < obstacles.length; i++) {
 			obstacles[i] = new Obstacle(Math.random() * WIDTH, -i * OBSTACLE_DISTANCE);
@@ -61,10 +62,18 @@ public class RenderLogic extends JPanel implements Runnable {
 			}
 		return gameScreen;
 	}
-	
+
 	public static void endGame(Player loser) {
-		System.out.println("End game");
-		stopped = true;
+		if (loser == null) {
+			System.out.println("End game");
+			stopped = true;
+		} else {
+			renderable = false;
+			JOptionPane.showMessageDialog(gameScreen.window,
+					String.format("Spieler %s gewinnt!", loser == player1 ? "Spieler 2" : "Spieler 1"), "Sieg",
+					JOptionPane.INFORMATION_MESSAGE);
+			stopped = true;
+		}
 	}
 
 	@Override
@@ -78,9 +87,9 @@ public class RenderLogic extends JPanel implements Runnable {
 		window.pack();
 		window.setLocationRelativeTo(null);
 
-		player1.setX(WIDTH / 2);
-		player1.setY(HEIGHT / 2);
-		
+		player1.setX(WIDTH * 1 / 3);
+		player1.setY(HEIGHT - player1.getHeight() * 2);
+
 		System.out.println("Player1: \n" + player1.getPosition());
 
 		player2.setX(WIDTH * 2 / 3);
@@ -121,10 +130,10 @@ public class RenderLogic extends JPanel implements Runnable {
 		renderThread.execute();
 	}
 
-	public static boolean hasStopped() {
+	public static synchronized boolean hasStopped() {
 		return stopped;
 	}
-	
+
 	public static void render() {
 		frameStartTime = System.nanoTime();
 
@@ -135,14 +144,12 @@ public class RenderLogic extends JPanel implements Runnable {
 
 		frameCounter++;
 	}
-	
+
 	private void render(Graphics g) {
 		frame.createGraphics().clearRect(0, 0, WIDTH, HEIGHT);
 
-//		player1.draw(frame.getGraphics());
-//		player2.draw(frame.getGraphics());
-		
-		frame.createGraphics().drawImage(player1.getSprite(), 400, 400, 20, 20, this);
+		player1.draw(frame.createGraphics());
+		player2.draw(frame.createGraphics());
 
 		for (int i = 0; i < obstacles.length; i++) {
 			obstacles[i].draw(frame.createGraphics());
