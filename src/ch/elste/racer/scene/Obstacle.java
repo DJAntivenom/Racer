@@ -7,8 +7,6 @@ import ch.elste.racer.RenderLogic;
 import ch.elste.racer.util.Vector2D;
 
 public class Obstacle extends Actor {
-	private double width, height;
-
 	/**
 	 * Kreiert ein neues Obstacle Objekt im Punkt <code>(x, y)</code> mit gegebener
 	 * Breite und Höhe.
@@ -25,10 +23,7 @@ public class Obstacle extends Actor {
 	public Obstacle(double x, double y, double width, double height) {
 		position = new Vector2D(x, y);
 		velocity = new Vector2D(0d, 0d);
-		
-		
-		this.width = width;
-		this.height = height;
+		size = new Vector2D(width, height);
 	}
 
 	/**
@@ -80,14 +75,16 @@ public class Obstacle extends Actor {
 	public void draw(Graphics g, ImageObserver observer) {
 		move();
 
-		g.fillRect((int) Math.round(position.getX() - width / 2), (int) Math.round(position.getY() - height / 2),
-				(int) Math.round(width), (int) Math.round(height));
+		g.fillRect((int) Math.round(position.getX() - size.getX() / 2), (int) Math.round(position.getY() - size.getY() / 2),
+				(int) Math.round(size.getX()), (int) Math.round(size.getY()));
 	}
 
 	@Override
 	public void move() {
-		if (position.getY() < RenderLogic.HEIGHT + height)
-			position.add(Vector2D.scale(DOWN, RenderLogic.getDeltaTime() * RenderLogic.OBSTACLE_SPEED / 1000));
+		velocity.set(Vector2D.scale(DOWN, RenderLogic.getDeltaTime() * RenderLogic.OBSTACLE_SPEED / 1000));
+		
+		if (position.getY() < RenderLogic.HEIGHT + size.getY())
+			position.add(velocity);
 		else
 			position.setY(-RenderLogic.HEIGHT);
 	}
@@ -101,6 +98,10 @@ public class Obstacle extends Actor {
 	}
 
 	public double getWidth() {
-		return width;
+		return size.getX();
+	}
+	
+	public double getHeight() {
+		return size.getY();
 	}
 }

@@ -65,7 +65,6 @@ public class RenderLogic extends JPanel implements Runnable {
 
 	public static void endGame(Player loser) {
 		if (loser == null) {
-			System.out.println("End game");
 			stopped = true;
 		} else {
 			renderable = false;
@@ -90,8 +89,6 @@ public class RenderLogic extends JPanel implements Runnable {
 		player1.setX(WIDTH * 1 / 3);
 		player1.setY(HEIGHT - player1.getHeight() * 2);
 
-		System.out.println("Player1: \n" + player1.getPosition());
-
 		player2.setX(WIDTH * 2 / 3);
 		player2.setY(HEIGHT - player2.getHeight() * 2);
 
@@ -113,7 +110,6 @@ public class RenderLogic extends JPanel implements Runnable {
 					if (renderable)
 						RenderLogic.render();
 				}
-				System.out.println("jetzt stoppts");
 				return null;
 			}
 
@@ -184,5 +180,17 @@ public class RenderLogic extends JPanel implements Runnable {
 	 */
 	public static long getFrameCounter() {
 		return frameCounter;
+	}
+	
+	public static Player getPlayer1() {
+		return player1;
+	}
+	
+	public static Player getPlayer2() {
+		return player2;
+	}
+	
+	public static Obstacle[] getObstacles() {
+		return obstacles;
 	}
 }

@@ -15,8 +15,10 @@ import ch.elste.racer.util.Vector2D;
 public class Player extends Actor {
 	private KeySet keySet;
 	private Image sprite;
-	private Vector2D spriteSize, size;
+	private Vector2D spriteSize;
 	private KeyHandler keyHandler;
+
+	public static final boolean COLLIDING = true;
 
 	/*
 	 * Kreiert einen neuen Player.
@@ -67,23 +69,37 @@ public class Player extends Actor {
 	public void draw(Graphics g, ImageObserver observer) {
 		move();
 
-		g.drawImage(sprite, (int) Math.round(position.getX()), (int) Math.round(position.getY()),
-				(int) Math.round(size.getX()), (int) Math.round(size.getY()), observer);
+		g.drawImage(sprite, (int) Math.round(position.getX() - size.getX() / 2),
+				(int) Math.round(position.getY() - size.getY() / 2), (int) Math.round(size.getX()),
+				(int) Math.round(size.getY()), observer);
 	}
 
 	@Override
 	public void move() {
 		position.add(Vector2D.scale(velocity, RenderLogic.getDeltaTime() * speed / 1000d));
 
-		if (position.getX() > RenderLogic.WIDTH)
-			position.setX(0);
-		else if (position.getX() < 0)
-			position.setX(RenderLogic.WIDTH);
+		if (COLLIDING)
+			checkMovementConstraints();
+
+		if (position.getX() > RenderLogic.WIDTH - size.getX()/2)
+			position.setX(RenderLogic.WIDTH - size.getX()/2);
+		else if (position.getX() < size.getX()/2)
+			position.setX(size.getX()/2);
 
 		if (position.getY() < size.getY() / 2)
-			position.setY(size.getY());
+			position.setY(size.getY() / 2);
 		else if (position.getY() > RenderLogic.HEIGHT + size.getY() / 2)
 			RenderLogic.endGame(this);
+	}
+
+	private void checkMovementConstraints() {
+		for (Obstacle o : RenderLogic.getObstacles()) {
+			if (o.position.getY() < position.getY() && collides(o)) {
+				position.setY(o.position.getY() + o.size.getY() / 2 + size.getY() / 2);
+			} else if (o.position.getY() > position.getY() && collides(o)) {
+				position.setY(o.position.getY() - o.size.getY() / 2 - size.getY() / 2);
+			}
+		}
 	}
 
 	public class KeyHandler extends KeyAdapter {
@@ -141,10 +157,11 @@ public class Player extends Actor {
 	}
 
 	public enum KeySet {
-		WASD(KeyEvent.VK_A, KeyEvent.VK_D, KeyEvent.VK_W, KeyEvent.VK_S), ARROWS(KeyEvent.VK_LEFT, KeyEvent.VK_RIGHT,
-				KeyEvent.VK_UP, KeyEvent.VK_DOWN);
+		WASD(KeyEvent.VK_A, KeyEvent.VK_D, KeyEvent.VK_W, KeyEvent.VK_S, KeyEvent.VK_SHIFT),
+		ARROWS(KeyEvent.VK_LEFT, KeyEvent.VK_RIGHT, KeyEvent.VK_UP, KeyEvent.VK_DOWN, KeyEvent.VK_SPACE),
+		JKLI(KeyEvent.VK_J, KeyEvent.VK_L, KeyEvent.VK_I, KeyEvent.VK_K, KeyEvent.VK_B);
 
-		KeySet(int left, int right, int up, int down) {
+		KeySet(int left, int right, int up, int down, int boost) {
 			this.left = left;
 			this.right = right;
 			this.up = up;

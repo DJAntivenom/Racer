@@ -21,6 +21,7 @@ public class Actor implements Drawable, Movable {
 
 	protected Vector2D position;
 	protected Vector2D velocity;
+	protected Vector2D size;
 	protected double speed;
 
 	@Override
@@ -32,10 +33,32 @@ public class Actor implements Drawable, Movable {
 		draw(g, RenderLogic.instance());
 	}
 
+	/**
+	 * Überprüft, ob der Actor mit einem anderen Actor kollidiert. In anderen Worten
+	 * wird überprüft, ob die Koordinaten überlappen.
+	 * 
+	 * @param a
+	 *            der andere Actor
+	 * @return
+	 *         <li>true, wenn die Actors überlappen</li>
+	 *         <li>false, wenn die Actors nicht überlappen</li>
+	 */
+	public boolean collides(Actor a) {
+		return collidesX(a) && collidesY(a);
+	}
+
+	private boolean collidesX(Actor a) {
+		return Math.abs(position.getX() - a.position.getX()) - size.getX() / 2 - a.size.getX() / 2 < 0;
+	}
+
+	private boolean collidesY(Actor a) {
+		return Math.abs(position.getY() - a.position.getY()) - size.getY() / 2 - a.size.getY() / 2 < 0;
+	}
+
 	public Vector2D getPosition() {
 		return position;
 	}
-	
+
 	public void setSpeed(double speed) {
 		this.speed = speed;
 	}
