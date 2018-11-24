@@ -5,6 +5,8 @@ import java.awt.Graphics;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -16,14 +18,11 @@ import ch.elste.racer.scene.Player;
 
 public class RenderLogic extends JPanel implements Runnable {
 	public static final int SUCCESS_CODE = 0x0000;
-	public static final double OBSTACLE_SPEED = 250;
+	public static double obstacleSpeed = 00;
 	public static final int OBSTACLE_DISTANCE = 140;
 	public static final int WIDTH = 800, HEIGHT = 800;
 	public volatile static boolean renderable;
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -6195642600853724715L;
 
 	private JFrame window;
@@ -77,6 +76,14 @@ public class RenderLogic extends JPanel implements Runnable {
 
 	@Override
 	public void run() {
+		Timer t = new Timer();
+		t.scheduleAtFixedRate(new TimerTask() {
+			@Override
+			public void run() {
+				obstacleSpeed += 100;
+			}
+		}, 20000, 20000);
+
 		window = new JFrame("Racer");
 		gameScreen.setPreferredSize(new Dimension(WIDTH, HEIGHT));
 		window.setContentPane(gameScreen);
@@ -181,15 +188,15 @@ public class RenderLogic extends JPanel implements Runnable {
 	public static long getFrameCounter() {
 		return frameCounter;
 	}
-	
+
 	public static Player getPlayer1() {
 		return player1;
 	}
-	
+
 	public static Player getPlayer2() {
 		return player2;
 	}
-	
+
 	public static Obstacle[] getObstacles() {
 		return obstacles;
 	}

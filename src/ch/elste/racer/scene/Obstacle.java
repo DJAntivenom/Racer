@@ -81,7 +81,7 @@ public class Obstacle extends Actor {
 
 	@Override
 	public void move() {
-		velocity.set(Vector2D.scale(DOWN, RenderLogic.getDeltaTime() * RenderLogic.OBSTACLE_SPEED / 1000));
+		velocity.set(Vector2D.scale(DOWN, RenderLogic.getDeltaTime() * RenderLogic.obstacleSpeed / 1000));
 		
 		if (position.getY() < RenderLogic.HEIGHT + size.getY())
 			position.add(velocity);

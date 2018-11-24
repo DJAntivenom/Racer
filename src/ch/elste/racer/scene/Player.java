@@ -78,13 +78,14 @@ public class Player extends Actor {
 	public void move() {
 		position.add(Vector2D.scale(velocity, RenderLogic.getDeltaTime() * speed / 1000d));
 
+
 		if (COLLIDING)
 			checkMovementConstraints();
-
-		if (position.getX() > RenderLogic.WIDTH - size.getX()/2)
-			position.setX(RenderLogic.WIDTH - size.getX()/2);
-		else if (position.getX() < size.getX()/2)
-			position.setX(size.getX()/2);
+		
+		if (position.getX() > RenderLogic.WIDTH - size.getX() / 2)
+			position.setX(RenderLogic.WIDTH - size.getX() / 2);
+		else if (position.getX() < size.getX() / 2)
+			position.setX(size.getX() / 2);
 
 		if (position.getY() < size.getY() / 2)
 			position.setY(size.getY() / 2);
@@ -99,6 +100,10 @@ public class Player extends Actor {
 			} else if (o.position.getY() > position.getY() && collides(o)) {
 				position.setY(o.position.getY() - o.size.getY() / 2 - size.getY() / 2);
 			}
+		}
+
+		if (this == RenderLogic.getPlayer1()) {
+			
 		}
 	}
 
@@ -166,9 +171,10 @@ public class Player extends Actor {
 			this.right = right;
 			this.up = up;
 			this.down = down;
+			this.boost = boost;
 		}
 
-		private final int left, right, up, down;
+		private final int left, right, up, down, boost;
 
 		public int getLeft() {
 			return left;
@@ -184,6 +190,10 @@ public class Player extends Actor {
 
 		public int getDown() {
 			return down;
+		}
+
+		public int getBoost() {
+			return boost;
 		}
 	}
 
